@@ -7,6 +7,7 @@
     <color name="teal_700">#FF018786</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    <color name="yellow">#E4D338</color>
     <color name="container_bg_color">#121212</color>
     <color name="window_color">#090909</color>
     <color name="tab_not_selected_color">#60FFFFFF</color>

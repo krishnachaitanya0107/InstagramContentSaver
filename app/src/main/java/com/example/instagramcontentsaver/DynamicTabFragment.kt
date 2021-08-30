@@ -1,7 +1,10 @@
 package com.example.instagramcontentsaver
 
+import android.app.Dialog
 import android.app.DownloadManager
 import android.content.Context
+import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
 import android.net.Uri
 import android.os.Binder
 import android.os.Bundle
@@ -12,7 +15,9 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
+import android.widget.EditText
 import android.widget.MediaController
+import android.widget.TextView
 import android.widget.Toast
 import androidx.core.content.ContextCompat.getSystemService
 import androidx.core.os.bundleOf
@@ -92,24 +97,7 @@ class DynamicTabFragment : Fragment() {
         binding.download.setOnClickListener {
             if(contentUrl.isNotEmpty()){
 
-                val downReq : DownloadManager.Request= DownloadManager.Request(uri)
-
-                downReq.setAllowedNetworkTypes(
-                    DownloadManager.Request.NETWORK_MOBILE or DownloadManager.Request.NETWORK_WIFI)
-                downReq.setTitle("Download")
-                downReq.setDescription("....")
-                downReq.allowScanningByMediaScanner()
-                downReq.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE)
-                downReq.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS,
-                    System.currentTimeMillis().toString()+".mp4"
-                )
-
-                val manager:DownloadManager= activity?.getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
-
-                manager.enqueue(downReq)
-
-                Toast.makeText(mContext,"Downloaded content !!",Toast.LENGTH_SHORT).show()
-
+                showFileNameDialog()
 
             } else
             {
@@ -135,6 +123,59 @@ class DynamicTabFragment : Fragment() {
 
 
         return binding.root
+    }
+
+    private fun showFileNameDialog(){
+        Dialog(mContext).apply {
+
+            setContentView(R.layout.file_name_dialog)
+            window?.setDimAmount(0.40F)
+            window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+            setCancelable(false)
+
+            val fileNameTextView=findViewById<EditText>(R.id.nameTextView)
+
+            findViewById<TextView>(R.id.confirmButton).setOnClickListener {
+                val fileName=fileNameTextView.text.toString()
+                downloadResource(fileName)
+                hideKeyboard()
+                dismiss()
+            }
+
+            findViewById<TextView>(R.id.cancelButton).setOnClickListener {
+                hideKeyboard()
+                dismiss()
+            }
+
+        }.show()
+    }
+
+    private fun downloadResource(fileName:String?){
+
+        val downReq : DownloadManager.Request= DownloadManager.Request(uri)
+
+        downReq.setAllowedNetworkTypes(
+            DownloadManager.Request.NETWORK_MOBILE or DownloadManager.Request.NETWORK_WIFI)
+        downReq.setTitle("Download")
+        downReq.setDescription("....")
+        downReq.allowScanningByMediaScanner()
+        downReq.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE)
+
+        val tempFileName:String = if(fileName.isNullOrEmpty()){
+            System.currentTimeMillis().toString()
+        } else {
+            fileName
+        }
+        downReq.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS,
+            "$tempFileName.mp4"
+        )
+
+        val manager:DownloadManager= activity?.getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
+
+        manager.enqueue(downReq)
+
+        Toast.makeText(mContext,"Downloaded content !!",Toast.LENGTH_SHORT).show()
+
     }
 
     private fun hideKeyboard(){
