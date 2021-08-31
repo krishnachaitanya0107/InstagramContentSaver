@@ -95,19 +95,28 @@ class DynamicTabFragment : Fragment() {
         }
 
         binding.download.setOnClickListener {
-            if(contentUrl.isNotEmpty()){
+            when {
+                contentUrl.isNotEmpty() -> {
+                    showFileNameDialog()
 
-                showFileNameDialog()
-
-            } else
-            {
-                Toast.makeText(mContext,"Could not download content ",Toast.LENGTH_SHORT).show()
+                }
+                binding.linkTextView.text.toString().isNullOrEmpty() -> {
+                    Toast.makeText(mContext,"Please enter content link",Toast.LENGTH_SHORT).show()
+                }
+                else -> {
+                    Toast.makeText(mContext,"Could not download content ",Toast.LENGTH_SHORT).show()
+                }
             }
         }
 
         binding.reset.setOnClickListener {
 
             binding.linkTextView.setText("")
+            searching=true
+            binding.getContent.setImageResource(R.drawable.ic_search)
+
+            contentUrl=""
+
 
             binding.videoViewPlaceHolder.visibility=View.VISIBLE
             binding.videoViewPlaceHolderBorder.visibility=View.VISIBLE
@@ -154,18 +163,20 @@ class DynamicTabFragment : Fragment() {
 
         val downReq : DownloadManager.Request= DownloadManager.Request(uri)
 
-        downReq.setAllowedNetworkTypes(
-            DownloadManager.Request.NETWORK_MOBILE or DownloadManager.Request.NETWORK_WIFI)
-        downReq.setTitle("Download")
-        downReq.setDescription("....")
-        downReq.allowScanningByMediaScanner()
-        downReq.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE)
-
         val tempFileName:String = if(fileName.isNullOrEmpty()){
             System.currentTimeMillis().toString()
         } else {
             fileName
         }
+
+        downReq.setAllowedNetworkTypes(
+            DownloadManager.Request.NETWORK_MOBILE or DownloadManager.Request.NETWORK_WIFI)
+        downReq.setTitle("Download")
+        downReq.setDescription("$tempFileName.mp4")
+        downReq.allowScanningByMediaScanner()
+        downReq.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE)
+
+
         downReq.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS,
             "$tempFileName.mp4"
         )

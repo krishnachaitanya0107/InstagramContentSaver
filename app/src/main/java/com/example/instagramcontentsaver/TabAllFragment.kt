@@ -77,18 +77,26 @@ class TabAllFragment : Fragment() {
 
 
         binding.download.setOnClickListener {
-            if(contentUrl.isNotEmpty()){
-                showFileNameDialog()
+            when {
+                contentUrl.isNotEmpty() -> {
+                    showFileNameDialog()
 
-            } else
-            {
-                Toast.makeText(mContext,"Could not download content ",Toast.LENGTH_SHORT).show()
+                }
+                binding.linkTextView.text.toString().isNullOrEmpty() -> {
+                    Toast.makeText(mContext,"Please enter content link",Toast.LENGTH_SHORT).show()
+                }
+                else -> {
+                    Toast.makeText(mContext,"Could not download content ",Toast.LENGTH_SHORT).show()
+                }
             }
         }
 
         binding.reset.setOnClickListener {
 
             binding.linkTextView.setText("")
+            searching=true
+            contentUrl=""
+            binding.getContent.setImageResource(R.drawable.ic_search)
             binding.imageView.setImageResource(R.drawable.ic_image)
 
         }
@@ -125,20 +133,22 @@ class TabAllFragment : Fragment() {
 
         val downReq : DownloadManager.Request= DownloadManager.Request(uri)
 
-        downReq.setAllowedNetworkTypes(
-            DownloadManager.Request.NETWORK_MOBILE or DownloadManager.Request.NETWORK_WIFI)
-        downReq.setTitle("Download")
-        downReq.setDescription("....")
-        downReq.allowScanningByMediaScanner()
-        downReq.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE)
-
         val tempFileName:String = if(fileName.isNullOrEmpty()){
             System.currentTimeMillis().toString()
         } else {
             fileName
         }
+
+        downReq.setAllowedNetworkTypes(
+            DownloadManager.Request.NETWORK_MOBILE or DownloadManager.Request.NETWORK_WIFI)
+        downReq.setTitle("Download")
+        downReq.setDescription("$tempFileName.jpg")
+        downReq.allowScanningByMediaScanner()
+        downReq.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE)
+
+
         downReq.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS,
-            "$tempFileName.mp4"
+            "$tempFileName.jpg"
         )
 
         val manager: DownloadManager = activity?.getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
