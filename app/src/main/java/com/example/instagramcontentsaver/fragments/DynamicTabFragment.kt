@@ -68,6 +68,7 @@ class DynamicTabFragment : Fragment() {
         binding.getContent.setOnClickListener {
             if(searching){
 
+                binding.progressBar.visibility=View.VISIBLE
                 val tempLink=binding.linkTextView.text.toString()
 
                 if(tempLink.isEmpty()){
@@ -207,20 +208,38 @@ class DynamicTabFragment : Fragment() {
                 val gson=gsonBuilder.create()
                 val instaResponse=gson.fromJson(response, InstaResponse::class.java)
                 contentUrl=instaResponse.graphql.shortcode_media.video_url
-                uri= Uri.parse(contentUrl)
 
-                binding.videoViewPlaceHolder.visibility=View.GONE
-                binding.videoViewPlaceHolderBorder.visibility=View.GONE
-                binding.videoView.visibility=View.VISIBLE
+                if(contentUrl.isNullOrEmpty()){
 
-                binding.videoView.setMediaController(mediaController)
-                binding.videoView.setVideoURI(uri)
-                binding.videoView.start()
+                    binding.videoViewPlaceHolder.visibility=View.VISIBLE
+                    binding.videoViewPlaceHolderBorder.visibility=View.VISIBLE
+                    binding.progressBar.visibility=View.GONE
+                    Toast.makeText(mContext,"Could not load content ",Toast.LENGTH_SHORT).show()
+
+                } else {
+
+                    uri= Uri.parse(contentUrl)
+
+                    binding.videoViewPlaceHolder.visibility=View.GONE
+                    binding.videoViewPlaceHolderBorder.visibility=View.GONE
+                    binding.videoView.visibility=View.VISIBLE
+
+                    binding.videoView.setMediaController(mediaController)
+                    binding.videoView.setVideoURI(uri)
+
+                    binding.progressBar.visibility=View.GONE
+
+                    binding.videoView.start()
+
+                }
+
+
                              },
             {error->
 
                 binding.videoViewPlaceHolder.visibility=View.VISIBLE
                 binding.videoViewPlaceHolderBorder.visibility=View.VISIBLE
+                binding.progressBar.visibility=View.GONE
                 Toast.makeText(mContext,"Could not load content ",Toast.LENGTH_SHORT).show()
                 Log.d("error",error.toString())
             })

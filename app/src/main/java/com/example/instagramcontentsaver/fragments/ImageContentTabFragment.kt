@@ -51,6 +51,7 @@ class ImageContentTabFragment : Fragment() {
         binding.getContent.setOnClickListener {
             if(searching){
 
+                binding.progressBar.visibility=View.VISIBLE
                 val tempLink=binding.linkTextView.text.toString()
 
                 if(tempLink.isEmpty()){
@@ -182,13 +183,30 @@ class ImageContentTabFragment : Fragment() {
                 val gson=gsonBuilder.create()
                 val instaResponse=gson.fromJson(response, InstaResponse::class.java)
                 contentUrl=instaResponse.graphql.shortcode_media.display_url
-                uri= Uri.parse(contentUrl)
+                
+                if(contentUrl.isNullOrEmpty()){
+
+                    binding.imageViewPlaceHolder.visibility=View.VISIBLE
+                    binding.imageViewPlaceHolderBorder.visibility=View.VISIBLE
+
+                    Toast.makeText(mContext,"Could not load content ",Toast.LENGTH_SHORT).show()
+
+                    binding.progressBar.visibility=View.GONE
+
+                } else {
+
+                    uri= Uri.parse(contentUrl)
 
 
-                binding.imageViewPlaceHolder.visibility=View.GONE
-                binding.imageViewPlaceHolderBorder.visibility=View.GONE
+                    binding.imageViewPlaceHolder.visibility=View.GONE
+                    binding.imageViewPlaceHolderBorder.visibility=View.GONE
 
-                Glide.with(mContext).load(uri).into(binding.imageView)
+                    Glide.with(mContext).load(uri).into(binding.imageView)
+
+                    binding.progressBar.visibility=View.GONE
+
+                }
+
 
             },
             {error->
@@ -197,6 +215,9 @@ class ImageContentTabFragment : Fragment() {
 
                 binding.imageViewPlaceHolder.visibility=View.VISIBLE
                 binding.imageViewPlaceHolderBorder.visibility=View.VISIBLE
+
+
+                binding.progressBar.visibility=View.GONE
 
             })
 
