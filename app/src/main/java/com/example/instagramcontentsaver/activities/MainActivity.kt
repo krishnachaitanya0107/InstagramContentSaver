@@ -1,4 +1,4 @@
-package com.example.instagramcontentsaver
+package com.example.instagramcontentsaver.activities
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -7,7 +7,10 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
+import com.example.instagramcontentsaver.fragments.DynamicPagerAdapter
 import com.example.instagramcontentsaver.databinding.ActivityMainBinding
+import com.example.instagramcontentsaver.fragments.DynamicTabFragment
+import com.example.instagramcontentsaver.fragments.ImageContentTabFragment
 import com.google.android.material.tabs.TabLayoutMediator
 
 class MainActivity : AppCompatActivity() {
@@ -37,9 +40,8 @@ class MainActivity : AppCompatActivity() {
         if (mediator != null)
             mediator!!.detach()
         pagerAdapter.removeAllFragments()
-        pagerAdapter.addFragments( TabAllFragment() , tabNames)
-        binding.viewPager2.offscreenPageLimit =
-            pagerAdapter.itemCount
+        pagerAdapter.addFragments( ImageContentTabFragment() , tabNames)
+        binding.viewPager2.offscreenPageLimit = pagerAdapter.itemCount
 
 
         val tabs = mutableListOf<String>().apply {
@@ -76,7 +78,7 @@ class MainActivity : AppCompatActivity() {
                 if (fragment is DynamicTabFragment)
                 // dynamic tab
                     Log.d("testing", "dynamic tab")
-                if (fragment is TabAllFragment)
+                if (fragment is ImageContentTabFragment)
                 // all tab
                 //fragment.title=currentTopic
                     Log.d("testing", "all tab")
@@ -96,9 +98,9 @@ class MainActivity : AppCompatActivity() {
     }
 
     private val pageChangeCallback = object : ViewPager2.OnPageChangeCallback() {
+
         override fun onPageSelected(position: Int) {
             super.onPageSelected(position)
-            //tinyDB.putInt("libraryListPosition", position)
         }
     }
 

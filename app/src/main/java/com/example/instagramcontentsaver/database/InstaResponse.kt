@@ -1,4 +1,4 @@
-package com.example.instagramcontentsaver
+package com.example.instagramcontentsaver.database
 
 data class InstaResponse(var graphql:instaObject)
 

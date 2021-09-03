@@ -1,4 +1,4 @@
-package com.example.instagramcontentsaver
+package com.example.instagramcontentsaver.fragments
 
 import android.app.Dialog
 import android.app.DownloadManager
@@ -6,7 +6,6 @@ import android.content.Context
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.net.Uri
-import android.os.Binder
 import android.os.Bundle
 import android.os.Environment
 import android.util.Log
@@ -16,55 +15,38 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
-import android.widget.MediaController
 import android.widget.TextView
 import android.widget.Toast
-import androidx.core.content.ContextCompat.getSystemService
-import androidx.core.os.bundleOf
 import com.android.volley.Request
-import com.android.volley.Response
 import com.android.volley.toolbox.StringRequest
 import com.android.volley.toolbox.Volley
-import com.example.instagramcontentsaver.databinding.FragmentDynamicTabBinding
+import com.bumptech.glide.Glide
+import com.example.instagramcontentsaver.database.InstaResponse
+import com.example.instagramcontentsaver.R
+import com.example.instagramcontentsaver.databinding.FragmentImageContentTabBinding
 import com.google.gson.GsonBuilder
 import org.apache.commons.lang3.StringUtils
 
-class DynamicTabFragment : Fragment() {
+class ImageContentTabFragment : Fragment() {
 
-    companion object {
-
-        private const val CATEGORY = "category"
-        fun getInstance(category: String) = DynamicTabFragment().apply {
-            arguments = bundleOf(CATEGORY to category)
-        }
-
-    }
-
-    private lateinit var binding: FragmentDynamicTabBinding
-    private lateinit var reqCategory:String
+    private lateinit var binding: FragmentImageContentTabBinding
 
     private var contentUrl=""
-    private var searching=true
     private lateinit var mContext: Context
-    private lateinit var mediaController:MediaController
     private lateinit var uri: Uri
+    private var searching=true
+
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View {
+    ): View? {
+        // Inflate the layout for this fragment
+        binding= FragmentImageContentTabBinding.inflate(layoutInflater, container, false)
 
-        binding=FragmentDynamicTabBinding.inflate(layoutInflater, container, false)
 
         mContext=requireContext()
-        reqCategory= requireArguments().getString("category") ?: ""
 
-
-        mediaController= MediaController(mContext)
-
-        mediaController.apply {
-            setAnchorView(binding.videoView)
-        }
 
         binding.getContent.setOnClickListener {
             if(searching){
@@ -94,6 +76,7 @@ class DynamicTabFragment : Fragment() {
 
         }
 
+
         binding.download.setOnClickListener {
             when {
                 contentUrl.isNotEmpty() -> {
@@ -113,23 +96,13 @@ class DynamicTabFragment : Fragment() {
 
             binding.linkTextView.setText("")
             searching=true
-            binding.getContent.setImageResource(R.drawable.ic_search)
-
             contentUrl=""
-
-
-            binding.videoViewPlaceHolder.visibility=View.VISIBLE
-            binding.videoViewPlaceHolderBorder.visibility=View.VISIBLE
-
-            try{
-                binding.videoView.stopPlayback()
-                binding.videoView.visibility=View.INVISIBLE
-            } catch (e:Exception){
-                Log.d("exception","Couldn't stop video player")
-            }
+            binding.getContent.setImageResource(R.drawable.ic_search)
+            binding.imageView.setImageResource(0)
+            binding.imageViewPlaceHolder.visibility=View.VISIBLE
+            binding.imageViewPlaceHolderBorder.visibility=View.VISIBLE
 
         }
-
 
         return binding.root
     }
@@ -159,7 +132,7 @@ class DynamicTabFragment : Fragment() {
         }.show()
     }
 
-    private fun downloadResource(fileName:String?){
+    private fun downloadResource(fileName:String){
 
         val downReq : DownloadManager.Request= DownloadManager.Request(uri)
 
@@ -172,16 +145,16 @@ class DynamicTabFragment : Fragment() {
         downReq.setAllowedNetworkTypes(
             DownloadManager.Request.NETWORK_MOBILE or DownloadManager.Request.NETWORK_WIFI)
         downReq.setTitle("Download")
-        downReq.setDescription("$tempFileName.mp4")
+        downReq.setDescription("$tempFileName.jpg")
         downReq.allowScanningByMediaScanner()
         downReq.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE)
 
 
         downReq.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS,
-            "$tempFileName.mp4"
+            "$tempFileName.jpg"
         )
 
-        val manager:DownloadManager= activity?.getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
+        val manager: DownloadManager = activity?.getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
 
         manager.enqueue(downReq)
 
@@ -192,38 +165,39 @@ class DynamicTabFragment : Fragment() {
     private fun hideKeyboard(){
         (activity?.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager)
             .apply {
-            hideSoftInputFromWindow(binding.root.windowToken, 0)
-        }
+                hideSoftInputFromWindow(binding.root.windowToken, 0)
+            }
     }
+
 
     private fun processData(url:String){
 
         val queue = Volley.newRequestQueue(mContext)
 
-        val stringRequest=StringRequest(
+        val stringRequest= StringRequest(
             Request.Method.GET,
             url,
             {response->
-                val gsonBuilder=GsonBuilder()
+                val gsonBuilder= GsonBuilder()
                 val gson=gsonBuilder.create()
-                val instaResponse=gson.fromJson(response,InstaResponse::class.java)
-                contentUrl=instaResponse.graphql.shortcode_media.video_url
+                val instaResponse=gson.fromJson(response, InstaResponse::class.java)
+                contentUrl=instaResponse.graphql.shortcode_media.display_url
                 uri= Uri.parse(contentUrl)
 
-                binding.videoViewPlaceHolder.visibility=View.GONE
-                binding.videoViewPlaceHolderBorder.visibility=View.GONE
-                binding.videoView.visibility=View.VISIBLE
 
-                binding.videoView.setMediaController(mediaController)
-                binding.videoView.setVideoURI(uri)
-                binding.videoView.start()
-                             },
+                binding.imageViewPlaceHolder.visibility=View.GONE
+                binding.imageViewPlaceHolderBorder.visibility=View.GONE
+
+                Glide.with(mContext).load(uri).into(binding.imageView)
+
+            },
             {error->
-
-                binding.videoViewPlaceHolder.visibility=View.VISIBLE
-                binding.videoViewPlaceHolderBorder.visibility=View.VISIBLE
                 Toast.makeText(mContext,"Could not load content ",Toast.LENGTH_SHORT).show()
                 Log.d("error",error.toString())
+
+                binding.imageViewPlaceHolder.visibility=View.VISIBLE
+                binding.imageViewPlaceHolderBorder.visibility=View.VISIBLE
+
             })
 
         queue.add(stringRequest)

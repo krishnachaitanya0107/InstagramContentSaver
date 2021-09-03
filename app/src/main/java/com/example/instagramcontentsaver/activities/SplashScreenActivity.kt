@@ -1,4 +1,4 @@
-package com.example.instagramcontentsaver
+package com.example.instagramcontentsaver.activities
 
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity

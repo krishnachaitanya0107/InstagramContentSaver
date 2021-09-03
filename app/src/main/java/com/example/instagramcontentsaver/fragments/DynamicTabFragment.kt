@@ -1,4 +1,4 @@
-package com.example.instagramcontentsaver
+package com.example.instagramcontentsaver.fragments
 
 import android.app.Dialog
 import android.app.DownloadManager
@@ -18,34 +18,52 @@ import android.widget.EditText
 import android.widget.MediaController
 import android.widget.TextView
 import android.widget.Toast
+import androidx.core.os.bundleOf
 import com.android.volley.Request
 import com.android.volley.toolbox.StringRequest
 import com.android.volley.toolbox.Volley
-import com.bumptech.glide.Glide
-import com.example.instagramcontentsaver.databinding.FragmentTabAllBinding
+import com.example.instagramcontentsaver.R
+import com.example.instagramcontentsaver.database.InstaResponse
+import com.example.instagramcontentsaver.databinding.FragmentDynamicTabBinding
 import com.google.gson.GsonBuilder
 import org.apache.commons.lang3.StringUtils
 
-class TabAllFragment : Fragment() {
+class DynamicTabFragment : Fragment() {
 
-    private lateinit var binding: FragmentTabAllBinding
+    companion object {
+
+        private const val CATEGORY = "category"
+        fun getInstance(category: String) = DynamicTabFragment().apply {
+            arguments = bundleOf(CATEGORY to category)
+        }
+
+    }
+
+    private lateinit var binding: FragmentDynamicTabBinding
+    private lateinit var reqCategory:String
 
     private var contentUrl=""
-    private lateinit var mContext: Context
-    private lateinit var uri: Uri
     private var searching=true
-
+    private lateinit var mContext: Context
+    private lateinit var mediaController:MediaController
+    private lateinit var uri: Uri
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
-        // Inflate the layout for this fragment
-        binding= FragmentTabAllBinding.inflate(layoutInflater, container, false)
+    ): View {
 
+        binding=FragmentDynamicTabBinding.inflate(layoutInflater, container, false)
 
         mContext=requireContext()
+        reqCategory= requireArguments().getString("category") ?: ""
 
+
+        mediaController= MediaController(mContext)
+
+        mediaController.apply {
+            setAnchorView(binding.videoView)
+        }
 
         binding.getContent.setOnClickListener {
             if(searching){
@@ -75,7 +93,6 @@ class TabAllFragment : Fragment() {
 
         }
 
-
         binding.download.setOnClickListener {
             when {
                 contentUrl.isNotEmpty() -> {
@@ -95,11 +112,23 @@ class TabAllFragment : Fragment() {
 
             binding.linkTextView.setText("")
             searching=true
-            contentUrl=""
             binding.getContent.setImageResource(R.drawable.ic_search)
-            binding.imageView.setImageResource(R.drawable.ic_image)
+
+            contentUrl=""
+
+
+            binding.videoViewPlaceHolder.visibility=View.VISIBLE
+            binding.videoViewPlaceHolderBorder.visibility=View.VISIBLE
+
+            try{
+                binding.videoView.stopPlayback()
+                binding.videoView.visibility=View.INVISIBLE
+            } catch (e:Exception){
+                Log.d("exception","Couldn't stop video player")
+            }
 
         }
+
 
         return binding.root
     }
@@ -129,7 +158,7 @@ class TabAllFragment : Fragment() {
         }.show()
     }
 
-    private fun downloadResource(fileName:String){
+    private fun downloadResource(fileName:String?){
 
         val downReq : DownloadManager.Request= DownloadManager.Request(uri)
 
@@ -142,16 +171,16 @@ class TabAllFragment : Fragment() {
         downReq.setAllowedNetworkTypes(
             DownloadManager.Request.NETWORK_MOBILE or DownloadManager.Request.NETWORK_WIFI)
         downReq.setTitle("Download")
-        downReq.setDescription("$tempFileName.jpg")
+        downReq.setDescription("$tempFileName.mp4")
         downReq.allowScanningByMediaScanner()
         downReq.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE)
 
 
         downReq.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS,
-            "$tempFileName.jpg"
+            "$tempFileName.mp4"
         )
 
-        val manager: DownloadManager = activity?.getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
+        val manager:DownloadManager= activity?.getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
 
         manager.enqueue(downReq)
 
@@ -162,29 +191,36 @@ class TabAllFragment : Fragment() {
     private fun hideKeyboard(){
         (activity?.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager)
             .apply {
-                hideSoftInputFromWindow(binding.root.windowToken, 0)
-            }
+            hideSoftInputFromWindow(binding.root.windowToken, 0)
+        }
     }
-
 
     private fun processData(url:String){
 
         val queue = Volley.newRequestQueue(mContext)
 
-        val stringRequest= StringRequest(
+        val stringRequest=StringRequest(
             Request.Method.GET,
             url,
             {response->
-                val gsonBuilder= GsonBuilder()
+                val gsonBuilder=GsonBuilder()
                 val gson=gsonBuilder.create()
-                val instaResponse=gson.fromJson(response,InstaResponse::class.java)
-                contentUrl=instaResponse.graphql.shortcode_media.display_url
+                val instaResponse=gson.fromJson(response, InstaResponse::class.java)
+                contentUrl=instaResponse.graphql.shortcode_media.video_url
                 uri= Uri.parse(contentUrl)
 
-                Glide.with(mContext).load(uri).into(binding.imageView)
+                binding.videoViewPlaceHolder.visibility=View.GONE
+                binding.videoViewPlaceHolderBorder.visibility=View.GONE
+                binding.videoView.visibility=View.VISIBLE
 
-            },
+                binding.videoView.setMediaController(mediaController)
+                binding.videoView.setVideoURI(uri)
+                binding.videoView.start()
+                             },
             {error->
+
+                binding.videoViewPlaceHolder.visibility=View.VISIBLE
+                binding.videoViewPlaceHolderBorder.visibility=View.VISIBLE
                 Toast.makeText(mContext,"Could not load content ",Toast.LENGTH_SHORT).show()
                 Log.d("error",error.toString())
             })
