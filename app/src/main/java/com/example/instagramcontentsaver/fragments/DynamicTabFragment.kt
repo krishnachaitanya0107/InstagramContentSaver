@@ -23,6 +23,7 @@ import com.android.volley.Request
 import com.android.volley.toolbox.StringRequest
 import com.android.volley.toolbox.Volley
 import com.example.instagramcontentsaver.R
+import com.example.instagramcontentsaver.activities.MainActivity
 import com.example.instagramcontentsaver.database.InstaResponse
 import com.example.instagramcontentsaver.databinding.FragmentDynamicTabBinding
 import com.google.gson.GsonBuilder
@@ -43,6 +44,7 @@ class DynamicTabFragment : Fragment() {
     private lateinit var reqCategory:String
 
     private var contentUrl=""
+    private var isVideo=false
     private var searching=true
     private lateinit var mContext: Context
     private lateinit var mediaController:MediaController
@@ -66,32 +68,7 @@ class DynamicTabFragment : Fragment() {
         }
 
         binding.getContent.setOnClickListener {
-            if(searching){
-
-                binding.progressBar.visibility=View.VISIBLE
-                val tempLink=binding.linkTextView.text.toString()
-
-                if(tempLink.isEmpty()){
-                    Toast.makeText(mContext,"Link Cannot be empty ",Toast.LENGTH_SHORT).show()
-                } else {
-
-                    searching=false
-                    binding.getContent.setImageResource(R.drawable.ic_close)
-
-                    var url2=StringUtils.substringBefore(tempLink,"/?")
-                    url2 += "/?__a=1"
-
-                    processData(url2)
-
-                    hideKeyboard()
-
-                }
-            } else {
-                binding.linkTextView.setText("")
-                searching=true
-                binding.getContent.setImageResource(R.drawable.ic_search)
-            }
-
+            search()
         }
 
         binding.download.setOnClickListener {
@@ -110,28 +87,64 @@ class DynamicTabFragment : Fragment() {
         }
 
         binding.reset.setOnClickListener {
-
-            binding.linkTextView.setText("")
-            searching=true
-            binding.getContent.setImageResource(R.drawable.ic_search)
-
-            contentUrl=""
-
-
-            binding.videoViewPlaceHolder.visibility=View.VISIBLE
-            binding.videoViewPlaceHolderBorder.visibility=View.VISIBLE
-
-            try{
-                binding.videoView.stopPlayback()
-                binding.videoView.visibility=View.INVISIBLE
-            } catch (e:Exception){
-                Log.d("exception","Couldn't stop video player")
-            }
-
+            reset()
         }
 
 
         return binding.root
+    }
+
+    private fun search(){
+
+        if(searching){
+
+            binding.progressBar.visibility=View.VISIBLE
+            val tempLink=binding.linkTextView.text.toString()
+
+            if(tempLink.isEmpty()){
+                binding.progressBar.visibility=View.GONE
+                Toast.makeText(mContext,"Link Cannot be empty ",Toast.LENGTH_SHORT).show()
+            } else {
+
+                searching=false
+                binding.getContent.setImageResource(R.drawable.ic_close)
+
+                var url2=StringUtils.substringBefore(tempLink,"/?")
+                url2 += "/?__a=1"
+
+                processData(url2)
+
+                hideKeyboard()
+
+            }
+        } else {
+            binding.linkTextView.setText("")
+            searching=true
+            binding.getContent.setImageResource(R.drawable.ic_search)
+        }
+
+    }
+
+    private fun reset(){
+
+        binding.linkTextView.setText("")
+        searching=true
+        binding.getContent.setImageResource(R.drawable.ic_search)
+
+        contentUrl=""
+        isVideo=false
+
+
+        binding.videoViewPlaceHolder.visibility=View.VISIBLE
+        binding.videoViewPlaceHolderBorder.visibility=View.VISIBLE
+
+        try{
+            binding.videoView.stopPlayback()
+            binding.videoView.visibility=View.INVISIBLE
+        } catch (e:Exception){
+            Log.d("exception","Couldn't stop video player")
+        }
+
     }
 
     private fun showFileNameDialog(){
@@ -157,6 +170,39 @@ class DynamicTabFragment : Fragment() {
             }
 
         }.show()
+    }
+
+    fun showDifferentContentDialog(link:String){
+
+        Dialog(mContext).apply {
+
+            setContentView(R.layout.different_content_dialog)
+            window?.setDimAmount(0.40F)
+            window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+            setCancelable(true)
+
+            findViewById<TextView>(R.id.confirmButton).setOnClickListener {
+
+                (activity as MainActivity).apply {
+                    pagerAdapter.setImageDataToFragment(link)
+                    binding.viewPager2.setCurrentItem(0,true)
+                }
+
+                reset()
+                dismiss()
+            }
+
+            findViewById<TextView>(R.id.cancelButton).setOnClickListener {
+                dismiss()
+            }
+
+        }.show()
+
+    }
+
+    fun setData(link: String){
+        binding.linkTextView.setText(link)
+        search()
     }
 
     private fun downloadResource(fileName:String?){
@@ -208,29 +254,36 @@ class DynamicTabFragment : Fragment() {
                 val gson=gsonBuilder.create()
                 val instaResponse=gson.fromJson(response, InstaResponse::class.java)
                 contentUrl=instaResponse.graphql.shortcode_media.video_url
+                isVideo=instaResponse.graphql.shortcode_media.is_video
 
-                if(contentUrl.isNullOrEmpty()){
+                binding.progressBar.visibility=View.GONE
 
-                    binding.videoViewPlaceHolder.visibility=View.VISIBLE
-                    binding.videoViewPlaceHolderBorder.visibility=View.VISIBLE
-                    binding.progressBar.visibility=View.GONE
-                    Toast.makeText(mContext,"Could not load content ",Toast.LENGTH_SHORT).show()
+                if(isVideo){
+
+                    if(contentUrl.isNullOrEmpty()){
+
+                        binding.videoViewPlaceHolder.visibility=View.VISIBLE
+                        binding.videoViewPlaceHolderBorder.visibility=View.VISIBLE
+                        Toast.makeText(mContext,"Could not load content ",Toast.LENGTH_SHORT).show()
+
+                    } else {
+
+                        uri= Uri.parse(contentUrl)
+
+                        binding.videoViewPlaceHolder.visibility=View.GONE
+                        binding.videoViewPlaceHolderBorder.visibility=View.GONE
+                        binding.videoView.visibility=View.VISIBLE
+
+                        binding.videoView.setMediaController(mediaController)
+                        binding.videoView.setVideoURI(uri)
+
+
+                        binding.videoView.start()
+
+                    }
 
                 } else {
-
-                    uri= Uri.parse(contentUrl)
-
-                    binding.videoViewPlaceHolder.visibility=View.GONE
-                    binding.videoViewPlaceHolderBorder.visibility=View.GONE
-                    binding.videoView.visibility=View.VISIBLE
-
-                    binding.videoView.setMediaController(mediaController)
-                    binding.videoView.setVideoURI(uri)
-
-                    binding.progressBar.visibility=View.GONE
-
-                    binding.videoView.start()
-
+                    showDifferentContentDialog(binding.linkTextView.text.toString())
                 }
 
 
@@ -239,7 +292,6 @@ class DynamicTabFragment : Fragment() {
 
                 binding.videoViewPlaceHolder.visibility=View.VISIBLE
                 binding.videoViewPlaceHolderBorder.visibility=View.VISIBLE
-                binding.progressBar.visibility=View.GONE
                 Toast.makeText(mContext,"Could not load content ",Toast.LENGTH_SHORT).show()
                 Log.d("error",error.toString())
             })

@@ -41,6 +41,20 @@ class DynamicPagerAdapter(private val list: MutableList<Fragment> = mutableListO
         notifyDataSetChanged()
     }
 
+    fun setImageDataToFragment(link:String){
+        (list[0] as ImageContentTabFragment).apply {
+            setData(link)
+        }
+
+    }
+
+    fun setVideoDataToFragment(type:String,link:String){
+
+        (list[1] as DynamicTabFragment).apply {
+            setData(link)
+        }
+
+    }
 
     override fun getItemId(position: Int): Long {
         return pageIds[position]

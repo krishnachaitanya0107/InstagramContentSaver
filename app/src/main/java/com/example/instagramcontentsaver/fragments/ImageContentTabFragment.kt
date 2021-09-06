@@ -23,6 +23,7 @@ import com.android.volley.toolbox.Volley
 import com.bumptech.glide.Glide
 import com.example.instagramcontentsaver.database.InstaResponse
 import com.example.instagramcontentsaver.R
+import com.example.instagramcontentsaver.activities.MainActivity
 import com.example.instagramcontentsaver.databinding.FragmentImageContentTabBinding
 import com.google.gson.GsonBuilder
 import org.apache.commons.lang3.StringUtils
@@ -32,6 +33,7 @@ class ImageContentTabFragment : Fragment() {
     private lateinit var binding: FragmentImageContentTabBinding
 
     private var contentUrl=""
+    private var isVideo=false
     private lateinit var mContext: Context
     private lateinit var uri: Uri
     private var searching=true
@@ -49,32 +51,7 @@ class ImageContentTabFragment : Fragment() {
 
 
         binding.getContent.setOnClickListener {
-            if(searching){
-
-                binding.progressBar.visibility=View.VISIBLE
-                val tempLink=binding.linkTextView.text.toString()
-
-                if(tempLink.isEmpty()){
-                    Toast.makeText(mContext,"Link Cannot be empty ",Toast.LENGTH_SHORT).show()
-                } else {
-
-                    searching=false
-                    binding.getContent.setImageResource(R.drawable.ic_close)
-
-                    var url2=StringUtils.substringBefore(tempLink,"/?")
-                    url2 += "/?__a=1"
-
-                    processData(url2)
-
-                    hideKeyboard()
-
-                }
-            } else {
-                binding.linkTextView.setText("")
-                searching=true
-                binding.getContent.setImageResource(R.drawable.ic_search)
-            }
-
+            search()
         }
 
 
@@ -94,18 +71,59 @@ class ImageContentTabFragment : Fragment() {
         }
 
         binding.reset.setOnClickListener {
-
-            binding.linkTextView.setText("")
-            searching=true
-            contentUrl=""
-            binding.getContent.setImageResource(R.drawable.ic_search)
-            binding.imageView.setImageResource(0)
-            binding.imageViewPlaceHolder.visibility=View.VISIBLE
-            binding.imageViewPlaceHolderBorder.visibility=View.VISIBLE
-
+            reset()
         }
 
         return binding.root
+    }
+
+    private fun search(){
+
+        if(searching){
+
+            binding.progressBar.visibility=View.VISIBLE
+            val tempLink=binding.linkTextView.text.toString()
+
+            if(tempLink.isEmpty()){
+                binding.progressBar.visibility=View.GONE
+                Toast.makeText(mContext,"Link Cannot be empty ",Toast.LENGTH_SHORT).show()
+            } else {
+
+                searching=false
+                binding.getContent.setImageResource(R.drawable.ic_close)
+
+                var url2=StringUtils.substringBefore(tempLink,"/?")
+                url2 += "/?__a=1"
+
+                processData(url2)
+
+                hideKeyboard()
+
+            }
+        } else {
+            binding.linkTextView.setText("")
+            searching=true
+            binding.getContent.setImageResource(R.drawable.ic_search)
+        }
+
+    }
+
+    private fun reset(){
+
+        binding.linkTextView.setText("")
+        searching=true
+        contentUrl=""
+        isVideo=false
+        binding.getContent.setImageResource(R.drawable.ic_search)
+        binding.imageView.setImageResource(0)
+        binding.imageViewPlaceHolder.visibility=View.VISIBLE
+        binding.imageViewPlaceHolderBorder.visibility=View.VISIBLE
+
+    }
+
+    fun setData(link:String){
+        binding.linkTextView.setText(link)
+        search()
     }
 
     private fun showFileNameDialog(){
@@ -132,6 +150,38 @@ class ImageContentTabFragment : Fragment() {
 
         }.show()
     }
+
+    fun showDifferentContentDialog(type:String , link: String){
+
+        Dialog(mContext).apply {
+
+            setContentView(R.layout.different_content_dialog)
+            window?.setDimAmount(0.40F)
+            window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+            setCancelable(true)
+
+            findViewById<TextView>(R.id.titleText).text="Do you wish to load a $type ?"
+
+            findViewById<TextView>(R.id.confirmButton).setOnClickListener {
+
+                (activity as MainActivity).apply {
+                    pagerAdapter.setVideoDataToFragment(type,link)
+                    binding.viewPager2.setCurrentItem(1,true)
+                }
+
+                reset()
+
+                dismiss()
+            }
+
+            findViewById<TextView>(R.id.cancelButton).setOnClickListener {
+                dismiss()
+            }
+
+        }.show()
+
+    }
+
 
     private fun downloadResource(fileName:String){
 
@@ -183,29 +233,39 @@ class ImageContentTabFragment : Fragment() {
                 val gson=gsonBuilder.create()
                 val instaResponse=gson.fromJson(response, InstaResponse::class.java)
                 contentUrl=instaResponse.graphql.shortcode_media.display_url
-                
-                if(contentUrl.isNullOrEmpty()){
+                isVideo=instaResponse.graphql.shortcode_media.is_video
 
-                    binding.imageViewPlaceHolder.visibility=View.VISIBLE
-                    binding.imageViewPlaceHolderBorder.visibility=View.VISIBLE
+                binding.progressBar.visibility=View.GONE
 
-                    Toast.makeText(mContext,"Could not load content ",Toast.LENGTH_SHORT).show()
+                if(!isVideo){
 
-                    binding.progressBar.visibility=View.GONE
+                    if((contentUrl.isNullOrEmpty())){
+
+                        binding.imageViewPlaceHolder.visibility=View.VISIBLE
+                        binding.imageViewPlaceHolderBorder.visibility=View.VISIBLE
+
+                        Toast.makeText(mContext,"Could not load content ",Toast.LENGTH_SHORT).show()
+
+
+                    } else {
+
+                        uri= Uri.parse(contentUrl)
+
+
+                        binding.imageViewPlaceHolder.visibility=View.GONE
+                        binding.imageViewPlaceHolderBorder.visibility=View.GONE
+
+                        Glide.with(mContext).load(uri).into(binding.imageView)
+
+
+                    }
 
                 } else {
 
-                    uri= Uri.parse(contentUrl)
-
-
-                    binding.imageViewPlaceHolder.visibility=View.GONE
-                    binding.imageViewPlaceHolderBorder.visibility=View.GONE
-
-                    Glide.with(mContext).load(uri).into(binding.imageView)
-
-                    binding.progressBar.visibility=View.GONE
+                    showDifferentContentDialog("video",binding.linkTextView.text.toString())
 
                 }
+
 
 
             },
@@ -216,8 +276,6 @@ class ImageContentTabFragment : Fragment() {
                 binding.imageViewPlaceHolder.visibility=View.VISIBLE
                 binding.imageViewPlaceHolderBorder.visibility=View.VISIBLE
 
-
-                binding.progressBar.visibility=View.GONE
 
             })
 

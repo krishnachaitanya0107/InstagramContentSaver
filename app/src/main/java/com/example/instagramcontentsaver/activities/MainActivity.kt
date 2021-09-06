@@ -15,7 +15,7 @@ import com.google.android.material.tabs.TabLayoutMediator
 
 class MainActivity : AppCompatActivity() {
 
-    private lateinit var binding: ActivityMainBinding
+    lateinit var binding: ActivityMainBinding
     lateinit var pagerAdapter: DynamicPagerAdapter
     private var mediator: TabLayoutMediator? = null
     val tabNames= listOf("Video","IgTv","Reel")
