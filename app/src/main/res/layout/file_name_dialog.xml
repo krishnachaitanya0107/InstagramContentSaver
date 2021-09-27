@@ -23,7 +23,7 @@
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        android:textColor="@color/white"
+        android:textColor="@color/yellow"
         android:textSize="16sp"
         />
 
@@ -32,16 +32,29 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintRight_toLeftOf="@id/fileExtension"
         app:layout_constraintTop_toBottomOf="@id/fileNameId"
         android:hint="Enter File Name Here..."
         android:ellipsize="end"
         android:layout_marginTop="20dp"
+        android:layout_marginRight="5dp"
         android:inputType="textMultiLine"
         android:padding="5dp"
         android:textSize="14sp"
         android:maxLines="1"
         android:background="@drawable/rectangular_border_white"
+        />
+
+    <TextView
+        android:id="@+id/fileExtension"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="@id/nameTextView"
+        app:layout_constraintBottom_toBottomOf="@id/nameTextView"
+        android:textSize="14sp"
+        android:textColor="@color/white"
+        android:text=".mp4"
         />
 
     <TextView

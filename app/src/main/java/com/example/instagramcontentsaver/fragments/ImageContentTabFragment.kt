@@ -25,6 +25,7 @@ import com.example.instagramcontentsaver.database.InstaResponse
 import com.example.instagramcontentsaver.R
 import com.example.instagramcontentsaver.activities.MainActivity
 import com.example.instagramcontentsaver.databinding.FragmentImageContentTabBinding
+import com.example.instagramcontentsaver.utilities.Constants
 import com.google.gson.GsonBuilder
 import org.apache.commons.lang3.StringUtils
 
@@ -130,11 +131,13 @@ class ImageContentTabFragment : Fragment() {
         Dialog(mContext).apply {
 
             setContentView(R.layout.file_name_dialog)
-            window?.setDimAmount(0.40F)
+            window?.setDimAmount(Constants.DIM_AMOUNT)
             window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
             setCancelable(false)
 
             val fileNameTextView=findViewById<EditText>(R.id.nameTextView)
+
+            findViewById<TextView>(R.id.fileExtension).text=".jpg"
 
             findViewById<TextView>(R.id.confirmButton).setOnClickListener {
                 val fileName=fileNameTextView.text.toString()

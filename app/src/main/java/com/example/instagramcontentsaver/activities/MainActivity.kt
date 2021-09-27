@@ -90,6 +90,17 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    override fun onBackPressed() {
+
+        when(binding.viewPager2.currentItem){
+
+            3  -> binding.viewPager2.setCurrentItem(2,true)
+            2  -> binding.viewPager2.setCurrentItem(1,true)
+            1  -> binding.viewPager2.setCurrentItem(0,true)
+            else -> super.onBackPressed()
+
+        }
+    }
 
     override fun onStop() {
         binding.viewPager2.unregisterOnPageChangeCallback(pageChangeCallback)
