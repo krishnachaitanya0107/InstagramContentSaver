@@ -9,12 +9,12 @@ import com.example.instagramcontentsaver.databinding.ActivitySplashScreenBinding
 
 class SplashScreenActivity : AppCompatActivity() {
 
-    lateinit var binding:ActivitySplashScreenBinding
+    lateinit var binding: ActivitySplashScreenBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        binding= ActivitySplashScreenBinding.inflate(layoutInflater)
+        binding = ActivitySplashScreenBinding.inflate(layoutInflater)
 
         supportActionBar?.hide()
 
@@ -32,8 +32,7 @@ class SplashScreenActivity : AppCompatActivity() {
                     )
                 )
                 finish()
-            }
-            ,2000)
+            }, 2000)
 
         setContentView(binding.root)
     }

@@ -6,12 +6,13 @@ import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.Lifecycle
 import androidx.viewpager2.adapter.FragmentStateAdapter
 
-class DynamicPagerAdapter(private val list: MutableList<Fragment> = mutableListOf(),
-                          fragmentManager: FragmentManager,
-                          lifecycle: Lifecycle
-): FragmentStateAdapter(fragmentManager, lifecycle) {
+class DynamicPagerAdapter(
+    private val list: MutableList<Fragment> = mutableListOf(),
+    fragmentManager: FragmentManager,
+    lifecycle: Lifecycle
+) : FragmentStateAdapter(fragmentManager, lifecycle) {
 
-    private val pageIds= mutableListOf<Long>()
+    private val pageIds = mutableListOf<Long>()
     val TAG = "DynamicPagerAdapter"
 
     override fun getItemCount(): Int {
@@ -22,11 +23,10 @@ class DynamicPagerAdapter(private val list: MutableList<Fragment> = mutableListO
         return list[position]
     }
 
-    fun addFragments(f: ImageContentTabFragment, ls:List<String>){
+    fun addFragments(f: ImageContentTabFragment, ls: List<String>) {
         pageIds.clear()
         list.add(f)
-        ls.forEach {
-                category ->
+        ls.forEach { category ->
             list.add(DynamicContentTabFragment.getInstance(category))
         }
 
@@ -34,21 +34,21 @@ class DynamicPagerAdapter(private val list: MutableList<Fragment> = mutableListO
         notifyDataSetChanged()
     }
 
-    fun removeAllFragments(){
-        Log.d("testing","removeAllFragments")
+    fun removeAllFragments() {
+        Log.d("testing", "removeAllFragments")
         list.clear()
         pageIds.clear()
         notifyDataSetChanged()
     }
 
-    fun setImageDataToFragment(link:String){
+    fun setImageDataToFragment(link: String) {
         (list[0] as ImageContentTabFragment).apply {
             setData(link)
         }
 
     }
 
-    fun setVideoDataToFragment(type:String,link:String){
+    fun setVideoDataToFragment(type: String, link: String) {
 
         (list[1] as DynamicContentTabFragment).apply {
             setData(link)
@@ -64,11 +64,11 @@ class DynamicPagerAdapter(private val list: MutableList<Fragment> = mutableListO
         return pageIds.contains(itemId)
     }
 
-    fun refreshDataOfOtherTabs(){
+    fun refreshDataOfOtherTabs() {
         list.forEach {
             if (it is DynamicContentTabFragment)
             //it.feedAdapter.notifyDataSetChanged()
-                Log.d("testing","refresh data of other tabs")
+                Log.d("testing", "refresh data of other tabs")
         }
     }
 

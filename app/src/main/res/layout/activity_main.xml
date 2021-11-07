@@ -8,12 +8,11 @@
 
 
     <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/titleToolbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toTopOf="parent"
         app:elevation="0dp"
-        android:id="@+id/titleToolbar"
-        >
+        app:layout_constraintTop_toTopOf="parent">
 
         <com.google.android.material.appbar.MaterialToolbar
             android:id="@+id/toolbar"
@@ -21,8 +20,7 @@
             android:layout_height="wrap_content"
             app:layout_scrollFlags="scroll|enterAlways|snap"
             app:title="Instagram content Saver"
-            app:titleMarginStart="0dp"
-            />
+            app:titleMarginStart="0dp" />
 
     </com.google.android.material.appbar.AppBarLayout>
 
@@ -37,9 +35,8 @@
         app:layout_constraintTop_toBottomOf="@id/titleToolbar"
         app:tabBackground="@color/container_bg_color"
         app:tabMode="scrollable"
-        app:tabTextColor="@color/bottom_nav_view_item_text_color"
         app:tabPaddingBottom="6dp"
-        >
+        app:tabTextColor="@color/bottom_nav_view_item_text_color">
 
     </com.google.android.material.tabs.TabLayout>
 
@@ -51,8 +48,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tab_layout"
-        />
+        app:layout_constraintTop_toBottomOf="@id/tab_layout" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

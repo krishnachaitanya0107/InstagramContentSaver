@@ -15,13 +15,14 @@ import java.util.*
 
 class SharedPrefDb(appContext: Context) {
 
-    private val preferences: SharedPreferences = PreferenceManager.getDefaultSharedPreferences(appContext)
+    private val preferences: SharedPreferences =
+        PreferenceManager.getDefaultSharedPreferences(appContext)
 
     val all: Map<String, *>
         get() = preferences.all
 
 
-    fun getInt(key: String, defaultValue: Int=0): Int {
+    fun getInt(key: String, defaultValue: Int = 0): Int {
         return preferences.getInt(key, defaultValue)
     }
 
@@ -55,7 +56,7 @@ class SharedPrefDb(appContext: Context) {
         return newList
     }
 
-    fun getString(key: String , defaultString:String=""): String {
+    fun getString(key: String, defaultString: String = ""): String {
         return preferences.getString(key, defaultString)!!
     }
 

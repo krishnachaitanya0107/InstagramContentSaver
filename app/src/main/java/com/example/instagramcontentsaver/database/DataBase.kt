@@ -7,12 +7,12 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 
-@Database(entities = [InstaContent::class],version = 1,exportSchema = false)
+@Database(entities = [InstaContent::class], version = 1, exportSchema = false)
 
 @TypeConverters(Converters::class)
 abstract class DataBase : RoomDatabase() {
 
-    abstract fun instaContentDao():InstaContentDao
+    abstract fun instaContentDao(): InstaContentDao
 
     companion object {
 

@@ -11,13 +11,13 @@ import androidx.room.Query
 interface InstaContentDao {
 
     @Query("SELECT* FROM instaContent ORDER BY savedAt DESC")
-    fun getAllContent():LiveData<List<InstaContent>>
+    fun getAllContent(): LiveData<List<InstaContent>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun addContent(post:InstaContent)
+    fun addContent(post: InstaContent)
 
     @Query("DELETE FROM instaContent WHERE id=:id")
-    fun deleteContentById(id:String)
+    fun deleteContentById(id: String)
 
     @Query("DELETE FROM instaContent")
     fun deleteAllContent()

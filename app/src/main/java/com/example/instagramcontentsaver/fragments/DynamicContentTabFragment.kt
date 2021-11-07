@@ -48,28 +48,28 @@ class DynamicContentTabFragment : Fragment() {
     }
 
     private lateinit var binding: FragmentDynamicTabBinding
-    private lateinit var reqCategory:String
+    private lateinit var reqCategory: String
 
-    private var contentUrl=""
-    private var isVideo=false
-    private var searching=true
+    private var contentUrl = ""
+    private var isVideo = false
+    private var searching = true
     private lateinit var mContext: Context
-    private lateinit var mediaController:MediaController
+    private lateinit var mediaController: MediaController
     private lateinit var uri: Uri
-    private lateinit var dialog:Dialog
+    private lateinit var dialog: Dialog
 
     override fun onCreateView(
-            inflater: LayoutInflater, container: ViewGroup?,
-            savedInstanceState: Bundle?
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
     ): View {
 
-        binding=FragmentDynamicTabBinding.inflate(layoutInflater, container, false)
+        binding = FragmentDynamicTabBinding.inflate(layoutInflater, container, false)
 
-        mContext=requireContext()
-        reqCategory= requireArguments().getString("category") ?: ""
+        mContext = requireContext()
+        reqCategory = requireArguments().getString("category") ?: ""
 
 
-        mediaController= MediaController(mContext)
+        mediaController = MediaController(mContext)
 
         mediaController.apply {
             setAnchorView(binding.videoView)
@@ -82,14 +82,16 @@ class DynamicContentTabFragment : Fragment() {
             download.setOnClickListener {
                 when {
                     contentUrl.isNotEmpty() -> {
-                        dialog=showFileNameDialog()
+                        dialog = showFileNameDialog()
 
                     }
                     binding.linkTextView.text.toString().isNullOrEmpty() -> {
-                        Toast.makeText(mContext, "Please enter content link", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(mContext, "Please enter content link", Toast.LENGTH_SHORT)
+                            .show()
                     }
                     else -> {
-                        Toast.makeText(mContext, "Could not download content ", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(mContext, "Could not download content ", Toast.LENGTH_SHORT)
+                            .show()
                     }
                 }
             }
@@ -102,22 +104,22 @@ class DynamicContentTabFragment : Fragment() {
         return binding.root
     }
 
-    private fun search(){
+    private fun search() {
 
-        if(searching){
+        if (searching) {
 
-            binding.progressBar.visibility=View.VISIBLE
-            val tempLink=binding.linkTextView.text.toString()
+            binding.progressBar.visibility = View.VISIBLE
+            val tempLink = binding.linkTextView.text.toString()
 
-            if(tempLink.isEmpty()){
-                binding.progressBar.visibility=View.GONE
+            if (tempLink.isEmpty()) {
+                binding.progressBar.visibility = View.GONE
                 Toast.makeText(mContext, "Link Cannot be empty ", Toast.LENGTH_SHORT).show()
             } else {
 
-                searching=false
+                searching = false
                 binding.getContent.setImageResource(R.drawable.ic_close)
 
-                var url2=StringUtils.substringBefore(tempLink, "/?")
+                var url2 = StringUtils.substringBefore(tempLink, "/?")
                 url2 += "/?__a=1"
 
                 processData(url2)
@@ -127,36 +129,36 @@ class DynamicContentTabFragment : Fragment() {
             }
         } else {
             binding.linkTextView.setText("")
-            searching=true
+            searching = true
             binding.getContent.setImageResource(R.drawable.ic_search)
         }
 
     }
 
-    private fun reset(){
+    private fun reset() {
 
-        searching=true
-        contentUrl=""
-        isVideo=false
+        searching = true
+        contentUrl = ""
+        isVideo = false
 
         binding.apply {
 
             linkTextView.setText("")
             getContent.setImageResource(R.drawable.ic_search)
-            videoViewPlaceHolder.visibility=View.VISIBLE
-            videoViewPlaceHolderBorder.visibility=View.VISIBLE
+            videoViewPlaceHolder.visibility = View.VISIBLE
+            videoViewPlaceHolderBorder.visibility = View.VISIBLE
 
-            try{
+            try {
                 videoView.stopPlayback()
-                videoView.visibility=View.INVISIBLE
-            } catch (e: Exception){
+                videoView.visibility = View.INVISIBLE
+            } catch (e: Exception) {
                 Log.d("exception", "Couldn't stop video player")
             }
         }
 
     }
 
-    private fun showFileNameDialog() : Dialog {
+    private fun showFileNameDialog(): Dialog {
         return Dialog(mContext).apply {
 
             setContentView(R.layout.file_name_dialog)
@@ -164,16 +166,20 @@ class DynamicContentTabFragment : Fragment() {
             window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
             setCancelable(false)
 
-            val fileNameTextView=findViewById<EditText>(R.id.nameTextView)
+            val fileNameTextView = findViewById<EditText>(R.id.nameTextView)
 
-            findViewById<TextView>(R.id.fileExtension).text=".mp4"
+            findViewById<TextView>(R.id.fileExtension).text = ".mp4"
 
             findViewById<TextView>(R.id.confirmButton).setOnClickListener {
-                val fileName=fileNameTextView.text.toString()
+                val fileName = fileNameTextView.text.toString()
                 hideKeyboard()
-                if(checkStoragePermission()){
-                    if(getAllFileNames().contains(fileName)){
-                        Toast.makeText(mContext,"File Already Exists , Try a different name",Toast.LENGTH_SHORT).show()
+                if (checkStoragePermission()) {
+                    if (getAllFileNames().contains(fileName)) {
+                        Toast.makeText(
+                            mContext,
+                            "File Already Exists , Try a different name",
+                            Toast.LENGTH_SHORT
+                        ).show()
                     } else {
                         downloadResource(fileName)
                         dismiss()
@@ -192,7 +198,7 @@ class DynamicContentTabFragment : Fragment() {
 
     }
 
-    fun showDifferentContentDialog(link: String){
+    fun showDifferentContentDialog(link: String) {
 
         Dialog(mContext).apply {
 
@@ -220,31 +226,31 @@ class DynamicContentTabFragment : Fragment() {
 
     }
 
-    fun setData(link: String){
+    fun setData(link: String) {
         binding.linkTextView.setText(link)
         search()
     }
 
-    fun getAllFileNames():ArrayList<String>{
-        val sharedPrefDb=SharedPrefDb(mContext)
-        val fileNameList=ArrayList<String>()
-        val tempFileNameList=sharedPrefDb.getListString(Constants.File_NAMES_LIST)
+    fun getAllFileNames(): ArrayList<String> {
+        val sharedPrefDb = SharedPrefDb(mContext)
+        val fileNameList = ArrayList<String>()
+        val tempFileNameList = sharedPrefDb.getListString(Constants.File_NAMES_LIST)
 
-        if(tempFileNameList.size==0){
-            var folder=File(
-                    mContext.getExternalFilesDir(Environment.DIRECTORY_DCIM)!!.absolutePath +
-                            Constants.FILE_PATH
+        if (tempFileNameList.size == 0) {
+            var folder = File(
+                mContext.getExternalFilesDir(Environment.DIRECTORY_DCIM)!!.absolutePath +
+                        Constants.FILE_PATH
             )
 
-            val filesInFolder= folder.listFiles()
+            val filesInFolder = folder.listFiles()
 
             if (filesInFolder != null) {
                 for (file in filesInFolder) {
                     fileNameList.add((file.nameWithoutExtension))
                 }
             }
-            Log.d("fileNames",fileNameList.toString())
-            sharedPrefDb.putListString(Constants.File_NAMES_LIST,fileNameList)
+            Log.d("fileNames", fileNameList.toString())
+            sharedPrefDb.putListString(Constants.File_NAMES_LIST, fileNameList)
 
             return fileNameList
         } else {
@@ -254,19 +260,20 @@ class DynamicContentTabFragment : Fragment() {
 
     }
 
-    private fun downloadResource(fileName: String?){
+    private fun downloadResource(fileName: String?) {
 
-        val downReq : DownloadManager.Request= DownloadManager.Request(uri)
+        val downReq: DownloadManager.Request = DownloadManager.Request(uri)
 
-        val tempFileName:String = if(fileName.isNullOrEmpty()){
+        val tempFileName: String = if (fileName.isNullOrEmpty()) {
             System.currentTimeMillis().toString()
         } else {
             fileName
         }
 
 
-        var filePath= mContext.getExternalFilesDir(Environment.DIRECTORY_DCIM)!!.absolutePath +Constants.FILE_PATH
-        var file=File(filePath)
+        var filePath =
+            mContext.getExternalFilesDir(Environment.DIRECTORY_DCIM)!!.absolutePath + Constants.FILE_PATH
+        var file = File(filePath)
 
         /*
         var filePath=mContext.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS)!!.absolutePath+"/$tempFileName.mp4"
@@ -292,18 +299,21 @@ class DynamicContentTabFragment : Fragment() {
         */
 
         downReq.setAllowedNetworkTypes(
-                DownloadManager.Request.NETWORK_MOBILE or DownloadManager.Request.NETWORK_WIFI)
+            DownloadManager.Request.NETWORK_MOBILE or DownloadManager.Request.NETWORK_WIFI
+        )
         downReq.setTitle("Download")
         downReq.setDescription("$tempFileName.mp4")
         downReq.allowScanningByMediaScanner()
         downReq.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE)
 
 
-        downReq.setDestinationInExternalPublicDir(Environment.DIRECTORY_DCIM,
-                "/InstaContentSaver/$tempFileName.mp4"
+        downReq.setDestinationInExternalPublicDir(
+            Environment.DIRECTORY_DCIM,
+            "/InstaContentSaver/$tempFileName.mp4"
         )
 
-        val manager:DownloadManager= activity?.getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
+        val manager: DownloadManager =
+            activity?.getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
 
         manager.enqueue(downReq)
 
@@ -316,7 +326,7 @@ class DynamicContentTabFragment : Fragment() {
             Toast.makeText(mContext,"File already exists , renamed to $finalFileName.mp4 and saved ",Toast.LENGTH_SHORT).show()
         }
         */
-        var fileUri=file.absolutePath.toUri()
+        var fileUri = file.absolutePath.toUri()
 
         Log.d("testing2", fileUri.toString())
 
@@ -326,106 +336,111 @@ class DynamicContentTabFragment : Fragment() {
     fun requestPermission() {
         val requestCodeAskPermissions = 123
         ActivityCompat.requestPermissions(
-                requireActivity(),
-                arrayOf(
-                        "android.permission.READ_EXTERNAL_STORAGE",
-                        "android.permission.WRITE_EXTERNAL_STORAGE"
-                ),
-                requestCodeAskPermissions
+            requireActivity(),
+            arrayOf(
+                "android.permission.READ_EXTERNAL_STORAGE",
+                "android.permission.WRITE_EXTERNAL_STORAGE"
+            ),
+            requestCodeAskPermissions
         )
     }
 
     fun checkStoragePermission(): Boolean {
         return (ContextCompat.checkSelfPermission(
-                requireContext(),
-                "android.permission.READ_EXTERNAL_STORAGE"
+            requireContext(),
+            "android.permission.READ_EXTERNAL_STORAGE"
         ) == PackageManager.PERMISSION_GRANTED) && (ContextCompat.checkSelfPermission(
-                requireContext(),
-                "android.permission.WRITE_EXTERNAL_STORAGE"
+            requireContext(),
+            "android.permission.WRITE_EXTERNAL_STORAGE"
         ) == PackageManager.PERMISSION_GRANTED)
     }
 
-        override fun onRequestPermissionsResult(
-                requestCode: Int,
-                permissions: Array<out String>,
-                grantResults: IntArray
-        ) {
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if(grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-            val fileName=dialog.findViewById<EditText>(R.id.nameTextView).text.toString()
-            if(getAllFileNames().contains(fileName)){
-                Toast.makeText(mContext,"File Already Exists , Try a different name",Toast.LENGTH_SHORT).show()
+        if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+            val fileName = dialog.findViewById<EditText>(R.id.nameTextView).text.toString()
+            if (getAllFileNames().contains(fileName)) {
+                Toast.makeText(
+                    mContext,
+                    "File Already Exists , Try a different name",
+                    Toast.LENGTH_SHORT
+                ).show()
             } else {
                 downloadResource(fileName)
                 dialog.dismiss()
             }
         } else {
-            Log.d("testing2",grantResults.toString())
+            Log.d("testing2", grantResults.toString())
         }
 
     }
 
 
-    private fun hideKeyboard(){
+    private fun hideKeyboard() {
         (activity?.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager)
             .apply {
-            hideSoftInputFromWindow(binding.root.windowToken, 0)
-        }
+                hideSoftInputFromWindow(binding.root.windowToken, 0)
+            }
     }
 
-    private fun processData(url: String){
+    private fun processData(url: String) {
 
         val queue = Volley.newRequestQueue(mContext)
 
-        val stringRequest=StringRequest(
-                Request.Method.GET,
-                url,
-                { response ->
-                    val gsonBuilder = GsonBuilder()
-                    val gson = gsonBuilder.create()
-                    val instaResponse = gson.fromJson(response, InstaResponse::class.java)
-                    contentUrl = instaResponse.graphql.shortcode_media.video_url
-                    isVideo = instaResponse.graphql.shortcode_media.is_video
+        val stringRequest = StringRequest(
+            Request.Method.GET,
+            url,
+            { response ->
+                val gsonBuilder = GsonBuilder()
+                val gson = gsonBuilder.create()
+                val instaResponse = gson.fromJson(response, InstaResponse::class.java)
+                contentUrl = instaResponse.graphql.shortcode_media.video_url
+                isVideo = instaResponse.graphql.shortcode_media.is_video
 
-                    binding.progressBar.visibility = View.GONE
+                binding.progressBar.visibility = View.GONE
 
-                    if (isVideo) {
+                if (isVideo) {
 
-                        if (contentUrl.isNullOrEmpty()) {
+                    if (contentUrl.isNullOrEmpty()) {
 
-                            binding.videoViewPlaceHolder.visibility = View.VISIBLE
-                            binding.videoViewPlaceHolderBorder.visibility = View.VISIBLE
-                            Toast.makeText(mContext, "Could not load content ", Toast.LENGTH_SHORT).show()
-
-                        } else {
-
-                            uri = Uri.parse(contentUrl)
-
-                            binding.videoViewPlaceHolder.visibility = View.GONE
-                            binding.videoViewPlaceHolderBorder.visibility = View.GONE
-                            binding.videoView.visibility = View.VISIBLE
-
-                            binding.videoView.setMediaController(mediaController)
-                            binding.videoView.setVideoURI(uri)
-
-
-                            binding.videoView.start()
-
-                        }
+                        binding.videoViewPlaceHolder.visibility = View.VISIBLE
+                        binding.videoViewPlaceHolderBorder.visibility = View.VISIBLE
+                        Toast.makeText(mContext, "Could not load content ", Toast.LENGTH_SHORT)
+                            .show()
 
                     } else {
-                        showDifferentContentDialog(binding.linkTextView.text.toString())
+
+                        uri = Uri.parse(contentUrl)
+
+                        binding.videoViewPlaceHolder.visibility = View.GONE
+                        binding.videoViewPlaceHolderBorder.visibility = View.GONE
+                        binding.videoView.visibility = View.VISIBLE
+
+                        binding.videoView.setMediaController(mediaController)
+                        binding.videoView.setVideoURI(uri)
+
+
+                        binding.videoView.start()
+
                     }
 
+                } else {
+                    showDifferentContentDialog(binding.linkTextView.text.toString())
+                }
 
-                },
-                { error ->
 
-                    binding.videoViewPlaceHolder.visibility = View.VISIBLE
-                    binding.videoViewPlaceHolderBorder.visibility = View.VISIBLE
-                    Toast.makeText(mContext, "Could not load content ", Toast.LENGTH_SHORT).show()
-                    Log.d("error", error.toString())
-                })
+            },
+            { error ->
+
+                binding.videoViewPlaceHolder.visibility = View.VISIBLE
+                binding.videoViewPlaceHolderBorder.visibility = View.VISIBLE
+                Toast.makeText(mContext, "Could not load content ", Toast.LENGTH_SHORT).show()
+                Log.d("error", error.toString())
+            })
 
         queue.add(stringRequest)
 
