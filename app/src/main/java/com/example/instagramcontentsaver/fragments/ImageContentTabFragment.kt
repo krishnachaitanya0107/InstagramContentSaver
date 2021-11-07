@@ -17,6 +17,7 @@ import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
+import androidx.appcompat.widget.SearchView
 import com.android.volley.Request
 import com.android.volley.toolbox.StringRequest
 import com.android.volley.toolbox.Volley
@@ -51,28 +52,31 @@ class ImageContentTabFragment : Fragment() {
         mContext=requireContext()
 
 
-        binding.getContent.setOnClickListener {
-            search()
-        }
+        binding.apply {
 
+            download.setOnClickListener {
+                when {
+                    contentUrl.isNotEmpty() -> {
+                        showFileNameDialog()
 
-        binding.download.setOnClickListener {
-            when {
-                contentUrl.isNotEmpty() -> {
-                    showFileNameDialog()
-
-                }
-                binding.linkTextView.text.toString().isNullOrEmpty() -> {
-                    Toast.makeText(mContext,"Please enter content link",Toast.LENGTH_SHORT).show()
-                }
-                else -> {
-                    Toast.makeText(mContext,"Could not download content ",Toast.LENGTH_SHORT).show()
+                    }
+                    linkTextView.text.toString().isNullOrEmpty() -> {
+                        Toast.makeText(mContext,"Please enter content link",Toast.LENGTH_SHORT).show()
+                    }
+                    else -> {
+                        Toast.makeText(mContext,"Could not download content ",Toast.LENGTH_SHORT).show()
+                    }
                 }
             }
-        }
 
-        binding.reset.setOnClickListener {
-            reset()
+            reset.setOnClickListener {
+                reset()
+            }
+
+            getContent.setOnClickListener {
+                search()
+            }
+
         }
 
         return binding.root
@@ -111,14 +115,17 @@ class ImageContentTabFragment : Fragment() {
 
     private fun reset(){
 
-        binding.linkTextView.setText("")
         searching=true
         contentUrl=""
         isVideo=false
-        binding.getContent.setImageResource(R.drawable.ic_search)
-        binding.imageView.setImageResource(0)
-        binding.imageViewPlaceHolder.visibility=View.VISIBLE
-        binding.imageViewPlaceHolderBorder.visibility=View.VISIBLE
+
+        binding.apply {
+            linkTextView.setText("")
+            getContent.setImageResource(R.drawable.ic_search)
+            imageView.setImageResource(0)
+            imageViewPlaceHolder.visibility=View.VISIBLE
+            imageViewPlaceHolderBorder.visibility=View.VISIBLE
+        }
 
     }
 

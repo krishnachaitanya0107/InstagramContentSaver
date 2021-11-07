@@ -9,7 +9,7 @@ import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
 import com.example.instagramcontentsaver.fragments.DynamicPagerAdapter
 import com.example.instagramcontentsaver.databinding.ActivityMainBinding
-import com.example.instagramcontentsaver.fragments.DynamicTabFragment
+import com.example.instagramcontentsaver.fragments.DynamicContentTabFragment
 import com.example.instagramcontentsaver.fragments.ImageContentTabFragment
 import com.google.android.material.tabs.TabLayoutMediator
 
@@ -75,7 +75,7 @@ class MainActivity : AppCompatActivity() {
                 // This fragment is becoming the active Fragment - set it to
                 // the primary navigation fragment in the OnPostEventListener
 
-                if (fragment is DynamicTabFragment)
+                if (fragment is DynamicContentTabFragment)
                 // dynamic tab
                     Log.d("testing", "dynamic tab")
                 if (fragment is ImageContentTabFragment)

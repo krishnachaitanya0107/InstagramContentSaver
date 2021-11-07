@@ -27,7 +27,7 @@ class DynamicPagerAdapter(private val list: MutableList<Fragment> = mutableListO
         list.add(f)
         ls.forEach {
                 category ->
-            list.add(DynamicTabFragment.getInstance(category))
+            list.add(DynamicContentTabFragment.getInstance(category))
         }
 
         pageIds.addAll(list.map { it.hashCode().toLong() })
@@ -50,7 +50,7 @@ class DynamicPagerAdapter(private val list: MutableList<Fragment> = mutableListO
 
     fun setVideoDataToFragment(type:String,link:String){
 
-        (list[1] as DynamicTabFragment).apply {
+        (list[1] as DynamicContentTabFragment).apply {
             setData(link)
         }
 
@@ -66,7 +66,7 @@ class DynamicPagerAdapter(private val list: MutableList<Fragment> = mutableListO
 
     fun refreshDataOfOtherTabs(){
         list.forEach {
-            if (it is DynamicTabFragment)
+            if (it is DynamicContentTabFragment)
             //it.feedAdapter.notifyDataSetChanged()
                 Log.d("testing","refresh data of other tabs")
         }

@@ -35,14 +35,13 @@ import com.example.instagramcontentsaver.utilities.Constants
 import com.google.gson.GsonBuilder
 import org.apache.commons.lang3.StringUtils
 import java.io.File
-import java.io.FilenameFilter
 
-class DynamicTabFragment : Fragment() {
+class DynamicContentTabFragment : Fragment() {
 
     companion object {
 
         private const val CATEGORY = "category"
-        fun getInstance(category: String) = DynamicTabFragment().apply {
+        fun getInstance(category: String) = DynamicContentTabFragment().apply {
             arguments = bundleOf(CATEGORY to category)
         }
 
@@ -76,27 +75,27 @@ class DynamicTabFragment : Fragment() {
             setAnchorView(binding.videoView)
         }
 
-        binding.getContent.setOnClickListener {
-            search()
-        }
+        binding.apply {
+            getContent.setOnClickListener {
+                search()
+            }
+            download.setOnClickListener {
+                when {
+                    contentUrl.isNotEmpty() -> {
+                        dialog=showFileNameDialog()
 
-        binding.download.setOnClickListener {
-            when {
-                contentUrl.isNotEmpty() -> {
-                    dialog=showFileNameDialog()
-
-                }
-                binding.linkTextView.text.toString().isNullOrEmpty() -> {
-                    Toast.makeText(mContext, "Please enter content link", Toast.LENGTH_SHORT).show()
-                }
-                else -> {
-                    Toast.makeText(mContext, "Could not download content ", Toast.LENGTH_SHORT).show()
+                    }
+                    binding.linkTextView.text.toString().isNullOrEmpty() -> {
+                        Toast.makeText(mContext, "Please enter content link", Toast.LENGTH_SHORT).show()
+                    }
+                    else -> {
+                        Toast.makeText(mContext, "Could not download content ", Toast.LENGTH_SHORT).show()
+                    }
                 }
             }
-        }
-
-        binding.reset.setOnClickListener {
-            reset()
+            reset.setOnClickListener {
+                reset()
+            }
         }
 
 
@@ -136,22 +135,23 @@ class DynamicTabFragment : Fragment() {
 
     private fun reset(){
 
-        binding.linkTextView.setText("")
         searching=true
-        binding.getContent.setImageResource(R.drawable.ic_search)
-
         contentUrl=""
         isVideo=false
 
+        binding.apply {
 
-        binding.videoViewPlaceHolder.visibility=View.VISIBLE
-        binding.videoViewPlaceHolderBorder.visibility=View.VISIBLE
+            linkTextView.setText("")
+            getContent.setImageResource(R.drawable.ic_search)
+            videoViewPlaceHolder.visibility=View.VISIBLE
+            videoViewPlaceHolderBorder.visibility=View.VISIBLE
 
-        try{
-            binding.videoView.stopPlayback()
-            binding.videoView.visibility=View.INVISIBLE
-        } catch (e: Exception){
-            Log.d("exception", "Couldn't stop video player")
+            try{
+                videoView.stopPlayback()
+                videoView.visibility=View.INVISIBLE
+            } catch (e: Exception){
+                Log.d("exception", "Couldn't stop video player")
+            }
         }
 
     }
