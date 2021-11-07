@@ -19,18 +19,17 @@ class Converters {
     }
 
     @TypeConverter
-    fun listToJson(value: List<String>?)=Gson().toJson(value)
+    fun listToJson(value: List<String>?) = Gson().toJson(value)
 
     @TypeConverter
-    fun jsonToList(value: String)=Gson().fromJson(value, Array<String>::class.java).toList()
+    fun jsonToList(value: String) = Gson().fromJson(value, Array<String>::class.java).toList()
 
 
     @TypeConverter
-    fun arrayListToJson(value: ArrayList<String>?)= Gson().toJson(value)
+    fun arrayListToJson(value: ArrayList<String>?) = Gson().toJson(value)
 
     @TypeConverter
-    fun jsonToArrayList(value: String): ArrayList<String>
-    {
+    fun jsonToArrayList(value: String): ArrayList<String> {
         val listType: Type = object : TypeToken<ArrayList<String?>?>() {}.type
         return Gson().fromJson(value, listType)
     }

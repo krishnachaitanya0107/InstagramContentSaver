@@ -41,13 +41,13 @@ class DynamicTabFragment : Fragment() {
     }
 
     private lateinit var binding: FragmentDynamicTabBinding
-    private lateinit var reqCategory:String
+    private lateinit var reqCategory: String
 
-    private var contentUrl=""
-    private var isVideo=false
-    private var searching=true
+    private var contentUrl = ""
+    private var isVideo = false
+    private var searching = true
     private lateinit var mContext: Context
-    private lateinit var mediaController:MediaController
+    private lateinit var mediaController: MediaController
     private lateinit var uri: Uri
 
     override fun onCreateView(
@@ -55,13 +55,13 @@ class DynamicTabFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
 
-        binding=FragmentDynamicTabBinding.inflate(layoutInflater, container, false)
+        binding = FragmentDynamicTabBinding.inflate(layoutInflater, container, false)
 
-        mContext=requireContext()
-        reqCategory= requireArguments().getString("category") ?: ""
+        mContext = requireContext()
+        reqCategory = requireArguments().getString("category") ?: ""
 
 
-        mediaController= MediaController(mContext)
+        mediaController = MediaController(mContext)
 
         mediaController.apply {
             setAnchorView(binding.videoView)
@@ -78,10 +78,11 @@ class DynamicTabFragment : Fragment() {
 
                 }
                 binding.linkTextView.text.toString().isNullOrEmpty() -> {
-                    Toast.makeText(mContext,"Please enter content link",Toast.LENGTH_SHORT).show()
+                    Toast.makeText(mContext, "Please enter content link", Toast.LENGTH_SHORT).show()
                 }
                 else -> {
-                    Toast.makeText(mContext,"Could not download content ",Toast.LENGTH_SHORT).show()
+                    Toast.makeText(mContext, "Could not download content ", Toast.LENGTH_SHORT)
+                        .show()
                 }
             }
         }
@@ -94,22 +95,22 @@ class DynamicTabFragment : Fragment() {
         return binding.root
     }
 
-    private fun search(){
+    private fun search() {
 
-        if(searching){
+        if (searching) {
 
-            binding.progressBar.visibility=View.VISIBLE
-            val tempLink=binding.linkTextView.text.toString()
+            binding.progressBar.visibility = View.VISIBLE
+            val tempLink = binding.linkTextView.text.toString()
 
-            if(tempLink.isEmpty()){
-                binding.progressBar.visibility=View.GONE
-                Toast.makeText(mContext,"Link Cannot be empty ",Toast.LENGTH_SHORT).show()
+            if (tempLink.isEmpty()) {
+                binding.progressBar.visibility = View.GONE
+                Toast.makeText(mContext, "Link Cannot be empty ", Toast.LENGTH_SHORT).show()
             } else {
 
-                searching=false
+                searching = false
                 binding.getContent.setImageResource(R.drawable.ic_close)
 
-                var url2=StringUtils.substringBefore(tempLink,"/?")
+                var url2 = StringUtils.substringBefore(tempLink, "/?")
                 url2 += "/?__a=1"
 
                 processData(url2)
@@ -119,35 +120,35 @@ class DynamicTabFragment : Fragment() {
             }
         } else {
             binding.linkTextView.setText("")
-            searching=true
+            searching = true
             binding.getContent.setImageResource(R.drawable.ic_search)
         }
 
     }
 
-    private fun reset(){
+    private fun reset() {
 
         binding.linkTextView.setText("")
-        searching=true
+        searching = true
         binding.getContent.setImageResource(R.drawable.ic_search)
 
-        contentUrl=""
-        isVideo=false
+        contentUrl = ""
+        isVideo = false
 
 
-        binding.videoViewPlaceHolder.visibility=View.VISIBLE
-        binding.videoViewPlaceHolderBorder.visibility=View.VISIBLE
+        binding.videoViewPlaceHolder.visibility = View.VISIBLE
+        binding.videoViewPlaceHolderBorder.visibility = View.VISIBLE
 
-        try{
+        try {
             binding.videoView.stopPlayback()
-            binding.videoView.visibility=View.INVISIBLE
-        } catch (e:Exception){
-            Log.d("exception","Couldn't stop video player")
+            binding.videoView.visibility = View.INVISIBLE
+        } catch (e: Exception) {
+            Log.d("exception", "Couldn't stop video player")
         }
 
     }
 
-    private fun showFileNameDialog(){
+    private fun showFileNameDialog() {
         Dialog(mContext).apply {
 
             setContentView(R.layout.file_name_dialog)
@@ -155,10 +156,10 @@ class DynamicTabFragment : Fragment() {
             window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
             setCancelable(false)
 
-            val fileNameTextView=findViewById<EditText>(R.id.nameTextView)
+            val fileNameTextView = findViewById<EditText>(R.id.nameTextView)
 
             findViewById<TextView>(R.id.confirmButton).setOnClickListener {
-                val fileName=fileNameTextView.text.toString()
+                val fileName = fileNameTextView.text.toString()
                 downloadResource(fileName)
                 hideKeyboard()
                 dismiss()
@@ -172,7 +173,7 @@ class DynamicTabFragment : Fragment() {
         }.show()
     }
 
-    fun showDifferentContentDialog(link:String){
+    fun showDifferentContentDialog(link: String) {
 
         Dialog(mContext).apply {
 
@@ -185,7 +186,7 @@ class DynamicTabFragment : Fragment() {
 
                 (activity as MainActivity).apply {
                     pagerAdapter.setImageDataToFragment(link)
-                    binding.viewPager2.setCurrentItem(0,true)
+                    binding.viewPager2.setCurrentItem(0, true)
                 }
 
                 reset()
@@ -200,79 +201,83 @@ class DynamicTabFragment : Fragment() {
 
     }
 
-    fun setData(link: String){
+    fun setData(link: String) {
         binding.linkTextView.setText(link)
         search()
     }
 
-    private fun downloadResource(fileName:String?){
+    private fun downloadResource(fileName: String?) {
 
-        val downReq : DownloadManager.Request= DownloadManager.Request(uri)
+        val downReq: DownloadManager.Request = DownloadManager.Request(uri)
 
-        val tempFileName:String = if(fileName.isNullOrEmpty()){
+        val tempFileName: String = if (fileName.isNullOrEmpty()) {
             System.currentTimeMillis().toString()
         } else {
             fileName
         }
 
         downReq.setAllowedNetworkTypes(
-            DownloadManager.Request.NETWORK_MOBILE or DownloadManager.Request.NETWORK_WIFI)
+            DownloadManager.Request.NETWORK_MOBILE or DownloadManager.Request.NETWORK_WIFI
+        )
         downReq.setTitle("Download")
         downReq.setDescription("$tempFileName.mp4")
         downReq.allowScanningByMediaScanner()
         downReq.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE)
 
 
-        downReq.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS,
+        downReq.setDestinationInExternalPublicDir(
+            Environment.DIRECTORY_DOWNLOADS,
             "$tempFileName.mp4"
         )
 
-        val manager:DownloadManager= activity?.getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
+        val manager: DownloadManager =
+            activity?.getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
 
         manager.enqueue(downReq)
 
-        Toast.makeText(mContext,"Downloaded content !!",Toast.LENGTH_SHORT).show()
+        Toast.makeText(mContext, "Downloaded content !!", Toast.LENGTH_SHORT).show()
 
     }
 
-    private fun hideKeyboard(){
+    private fun hideKeyboard() {
         (activity?.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager)
             .apply {
-            hideSoftInputFromWindow(binding.root.windowToken, 0)
-        }
+                hideSoftInputFromWindow(binding.root.windowToken, 0)
+            }
     }
 
-    private fun processData(url:String){
+    private fun processData(url: String) {
 
         val queue = Volley.newRequestQueue(mContext)
 
-        val stringRequest=StringRequest(
+        val stringRequest = StringRequest(
             Request.Method.GET,
             url,
-            {response->
-                val gsonBuilder=GsonBuilder()
-                val gson=gsonBuilder.create()
-                val instaResponse=gson.fromJson(response, InstaResponse::class.java)
-                contentUrl=instaResponse.graphql.shortcode_media.video_url
-                isVideo=instaResponse.graphql.shortcode_media.is_video
+            { response ->
+                val gsonBuilder = GsonBuilder()
+                val gson = gsonBuilder.create()
+                val instaResponse = gson.fromJson(response, InstaResponse::class.java)
+                contentUrl = instaResponse.graphql.shortcode_media.video_url
+                isVideo = instaResponse.graphql.shortcode_media.is_video
 
-                binding.progressBar.visibility=View.GONE
+                binding.progressBar.visibility = View.GONE
 
-                if(isVideo){
+                if (isVideo) {
 
-                    if(contentUrl.isNullOrEmpty()){
+                    if (contentUrl.isNullOrEmpty()) {
 
-                        binding.videoViewPlaceHolder.visibility=View.VISIBLE
-                        binding.videoViewPlaceHolderBorder.visibility=View.VISIBLE
-                        Toast.makeText(mContext,"Could not load content ",Toast.LENGTH_SHORT).show()
+                        binding.videoViewPlaceHolder.visibility = View.VISIBLE
+                        binding.videoViewPlaceHolderBorder.visibility = View.VISIBLE
+                        Toast.makeText(mContext, "Could not load content ", Toast.LENGTH_SHORT)
+                            .show()
 
                     } else {
 
-                        uri= Uri.parse(contentUrl)
+                        uri = Uri.parse(contentUrl)
 
-                        binding.videoViewPlaceHolder.visibility=View.GONE
-                        binding.videoViewPlaceHolderBorder.visibility=View.GONE
-                        binding.videoView.visibility=View.VISIBLE
+                        binding.videoViewPlaceHolder.visibility = View.GONE
+                        binding.videoViewPlaceHolderBorder.visibility = View.GONE
+                        binding.videoView.visibility = View.VISIBLE
 
                         binding.videoView.setMediaController(mediaController)
                         binding.videoView.setVideoURI(uri)
@@ -287,13 +292,13 @@ class DynamicTabFragment : Fragment() {
                 }
 
 
-                             },
-            {error->
+            },
+            { error ->
 
-                binding.videoViewPlaceHolder.visibility=View.VISIBLE
-                binding.videoViewPlaceHolderBorder.visibility=View.VISIBLE
-                Toast.makeText(mContext,"Could not load content ",Toast.LENGTH_SHORT).show()
-                Log.d("error",error.toString())
+                binding.videoViewPlaceHolder.visibility = View.VISIBLE
+                binding.videoViewPlaceHolderBorder.visibility = View.VISIBLE
+                Toast.makeText(mContext, "Could not load content ", Toast.LENGTH_SHORT).show()
+                Log.d("error", error.toString())
             })
 
         queue.add(stringRequest)

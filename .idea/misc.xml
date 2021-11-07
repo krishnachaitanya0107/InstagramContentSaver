@@ -1,5 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
+  <component name="DesignSurface">
+    <option name="filePathToZoomLevelMap">
+      <map>
+        <entry key="..\:/Users/Paparao/StudioProjects/InstagramContentSaver/app/src/main/res/drawable/curved_rectangular_border.xml" value="0.19583333333333333" />
+        <entry key="..\:/Users/Paparao/StudioProjects/InstagramContentSaver/app/src/main/res/drawable/rectangular_border.xml" value="0.19583333333333333" />
+        <entry key="..\:/Users/Paparao/StudioProjects/InstagramContentSaver/app/src/main/res/drawable/rectangular_border_white.xml" value="0.19583333333333333" />
+        <entry key="..\:/Users/Paparao/StudioProjects/InstagramContentSaver/app/src/main/res/layout/activity_main.xml" value="0.1796875" />
+        <entry key="..\:/Users/Paparao/StudioProjects/InstagramContentSaver/app/src/main/res/layout/activity_splash_screen.xml" value="0.16168478260869565" />
+        <entry key="..\:/Users/Paparao/StudioProjects/InstagramContentSaver/app/src/main/res/layout/different_content_dialog.xml" value="0.16168478260869565" />
+        <entry key="..\:/Users/Paparao/StudioProjects/InstagramContentSaver/app/src/main/res/layout/file_name_dialog.xml" value="0.16168478260869565" />
+        <entry key="..\:/Users/Paparao/StudioProjects/InstagramContentSaver/app/src/main/res/layout/fragment_dynamic_tab.xml" value="0.1796875" />
+        <entry key="..\:/Users/Paparao/StudioProjects/InstagramContentSaver/app/src/main/res/layout/fragment_image_content_tab.xml" value="0.16168478260869565" />
+      </map>
+    </option>
+  </component>
   <component name="ProjectRootManager" version="2" languageLevel="JDK_1_8" default="true" project-jdk-name="1.8" project-jdk-type="JavaSDK">
     <output url="file://$PROJECT_DIR$/build/classes" />
   </component>

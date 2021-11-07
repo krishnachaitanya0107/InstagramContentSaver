@@ -18,17 +18,18 @@ class MainActivity : AppCompatActivity() {
     lateinit var binding: ActivityMainBinding
     lateinit var pagerAdapter: DynamicPagerAdapter
     private var mediator: TabLayoutMediator? = null
-    val tabNames= listOf("Video","IgTv","Reel")
+    val tabNames = listOf("Video", "IgTv", "Reel")
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        binding= ActivityMainBinding.inflate(layoutInflater)
+        binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
         supportActionBar?.hide()
 
-        pagerAdapter = DynamicPagerAdapter(fragmentManager = supportFragmentManager, lifecycle = lifecycle)
+        pagerAdapter =
+            DynamicPagerAdapter(fragmentManager = supportFragmentManager, lifecycle = lifecycle)
 
 
         pagerAdapter.registerFragmentTransactionCallback(transactionCallback)
@@ -40,7 +41,7 @@ class MainActivity : AppCompatActivity() {
         if (mediator != null)
             mediator!!.detach()
         pagerAdapter.removeAllFragments()
-        pagerAdapter.addFragments( ImageContentTabFragment() , tabNames)
+        pagerAdapter.addFragments(ImageContentTabFragment(), tabNames)
         binding.viewPager2.offscreenPageLimit = pagerAdapter.itemCount
 
 
